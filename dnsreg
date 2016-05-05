@@ -130,7 +130,7 @@ esac
 
 #      EXPIRESTRING="`whois -h 192.0.47.59 $DOMAIN | egrep -i "Expires.*:|Expiration.*:|Renewal.*:|expir.*date:" | head -n 1 | cut -d: -f2- | sed -e's/^[     ]*//'`"
 #      EXPIRESTRING="`whois -h 199.7.57.74 $DOMAIN | egrep -i "Expires.*:|Expiration.*:|Renewal.*:|expir.*date:" | head -n 1 | cut -d: -f2- | sed -e's/^[     ]*//'`"
-      EXPIRESTRING="`whois -h $host $DOMAIN | egrep -i "free-date:*|Expires.*:|Expiration.*:|Renewal.*:|expir.*date:" | head -n 1 | cut -d: -f2- | sed -e's/^[     ]*//'`"
+      EXPIRESTRING="`whois -h $host $DOMAIN | egrep -i "expire:*|free-date:*|Expires.*:|Expiration.*:|Renewal.*:|expir.*date:" | head -n 1 | cut -d: -f2- | sed -e's/^[     ]*//'`"
       EXPIRES=`date --date="$EXPIRESTRING" "+%s"`
 
       if test $EXPIRES -le $ALARMTIME
