@@ -126,7 +126,6 @@ do
         ;;
         *)
         host=199.7.57.74
-        exit 1
 esac
 
 #      EXPIRESTRING="`whois -h 192.0.47.59 $DOMAIN | egrep -i "Expires.*:|Expiration.*:|Renewal.*:|expir.*date:" | head -n 1 | cut -d: -f2- | sed -e's/^[     ]*//'`"
