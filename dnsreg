@@ -1,0 +1,153 @@
+#!/bin/sh
+
+# Check DNS registrations in whois and warn when they are about to expire.
+#
+# NOTE: Requires a "whois" command that knows what servers to query.
+#       Requires GNU date.
+#       Should run only once a day.
+
+NOW=`date "+%s"`
+WARNTIME=`expr $NOW + 864000`        # 10 days
+ALARMTIME=`expr $NOW + 432000`       # 5 day
+
+/home/xymon/server/bin/xymongrep dnsreg | while read L
+do
+      set $L
+      DOMAIN=$2
+      ext=`echo $DOMAIN | awk -F"." '{print $NF}'`
+      case $ext in
+        al)
+        host=209.59.119.1
+        ;;
+        be)
+        host=149.126.56.9
+        ;;
+        biz)
+        host=209.173.53.169
+        ;;
+        ch)
+        host=130.59.31.241
+        ;;
+        co)
+        host=156.154.17.94
+        ;;
+        com)
+        host=199.7.61.74
+        ;;
+        cz)
+        host=217.31.205.42
+        ;;
+        de)
+        host=81.91.170.6
+        ;;
+        dk)
+        host=193.163.102.21
+        ;;
+        ee)
+        host=195.43.86.155
+        ;;
+        es)
+        host=54.72.161.36
+        ;;
+        eu)
+        host=185.36.4.9
+        ;;
+        fi)
+        host=87.239.125.4
+        ;;
+        fr)
+        host=192.134.5.15
+        ;;
+        gl)
+        host=193.0.6.135
+        ;;
+        hr)
+        host=193.0.6.135
+        ;;
+        hu)
+        host=193.239.149.115
+        ;;
+        ie)
+        host=77.72.74.145
+        ;;
+        li)
+        host=130.59.31.241
+        ;;
+        lt)
+        host=195.8.218.18
+        ;;
+        lu)
+        host=158.64.1.113
+        ;;
+        lv)
+        host=92.240.66.50
+        ;;
+        net)
+        host=199.7.53.74
+        ;;
+        nl)
+        host=94.198.154.138
+        ;;
+        no)
+        host=128.39.62.71
+        ;;
+        nu)
+        host=91.226.37.197
+        ;;
+        pl)
+        host=193.59.201.49
+        ;;
+        pt)
+        host=185.39.208.67
+        ;;
+        ro)
+        host=192.162.16.108
+        ;;
+        rs)
+        host=91.199.17.67
+        ;;
+        ru)
+        host=212.193.111.1
+        ;;
+        se)
+        host=91.226.37.83
+        ;;
+        si)
+        host=194.249.4.43
+        ;;
+        sk)
+        host=91.212.112.251
+        ;;
+        uk)
+        host=213.248.242.41
+        ;;
+        xxx)
+        host=199.15.80.133
+        ;;
+        *)
+        host=199.7.57.74
+        exit 1
+esac
+
+#      EXPIRESTRING="`whois -h 192.0.47.59 $DOMAIN | egrep -i "Expires.*:|Expiration.*:|Renewal.*:|expir.*date:" | head -n 1 | cut -d: -f2- | sed -e's/^[     ]*//'`"
+#      EXPIRESTRING="`whois -h 199.7.57.74 $DOMAIN | egrep -i "Expires.*:|Expiration.*:|Renewal.*:|expir.*date:" | head -n 1 | cut -d: -f2- | sed -e's/^[     ]*//'`"
+      EXPIRESTRING="`whois -h $host $DOMAIN | egrep -i "Expires.*:|Expiration.*:|Renewal.*:|expir.*date:" | head -n 1 | cut -d: -f2- | sed -e's/^[     ]*//'`"
+      EXPIRES=`date --date="$EXPIRESTRING" "+%s"`
+
+      if test $EXPIRES -le $ALARMTIME
+      then
+         COLOR=red
+      elif test $EXPIRES -le $WARNTIME
+      then
+         COLOR=yellow
+      else
+         COLOR=green
+      fi
+
+      $BB $BBDISP "status+90000 $DOMAIN.dnsreg $COLOR `date`
+
+Domain $DOMAIN expires on $EXPIRESTRING
+"
+done
+
+exit 0
